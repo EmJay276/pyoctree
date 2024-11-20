@@ -645,7 +645,7 @@ vector<int> cOctree::findRayIntersectsSorted(vector<cLine> &rayList)
     {
         // Get branches to check. Branches are sorted in ascending distance 
         // from ray origin
-        cLine *ray = &rayList[i]; 
+        cLine *ray = &rayList[i];
         vector<cOctNode*> nodeList = getSortedNodesToCheck(*ray);
         
         // Loop through sorted branches, checking the polys contained within each
@@ -654,7 +654,7 @@ vector<int> cOctree::findRayIntersectsSorted(vector<cLine> &rayList)
             cOctNode *node = *it;
             for (int j=0; j<node->data.size(); j++) {
                 int polyLabel = node->data[j];
-                if (polyList[polyLabel].rayPlaneIntersectPoint(ray,ip,s)) {
+                if (polyList[polyLabel].rayPlaneIntersectPoint(*ray,ip,s)) {
                     intersectList.push_back(Intersection(polyLabel,ip,s)); }
             }
             intersectList_out.push_back(intersectList);
