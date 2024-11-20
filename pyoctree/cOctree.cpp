@@ -635,14 +635,14 @@ vector<vector<Intersection>> cOctree::findRayIntersectsSorted(vector<cLine> &ray
     // Uses openmp to speed up the calculation
     
     int numRays = (int)(rayList.size());
-    vector<Intersection> intersectList;
     vector<vector<Intersection>> intersectList_out;
-    vector<double> ip;
-    double s;
     
     #pragma omp parallel for
     for (int i=0; i<numRays; i++) 
     {
+        vector<Intersection> intersectList;
+        vector<double> ip;
+        double s;
         // Get branches to check. Branches are sorted in ascending distance 
         // from ray origin
         cLine *ray = &rayList[i];
@@ -657,9 +657,11 @@ vector<vector<Intersection>> cOctree::findRayIntersectsSorted(vector<cLine> &ray
                 if (polyList[polyLabel].rayPlaneIntersectPoint(*ray,ip,s)) {
                     intersectList.push_back(Intersection(polyLabel,ip,s)); }
             }
-            intersectList_out.push_back(intersectList);
-            intersectList.clear();
-        } 
+        }
+        // Sort list in terms of distance of the intersection from the ray origin
+        sort(intersectList.begin(),intersectList.end());
+
+        intersectList_out.push_back(intersectList);
     }
     return intersectList_out;
 }
