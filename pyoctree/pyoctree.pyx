@@ -250,6 +250,37 @@ cdef class PyOctree:
         for i in range(_rayList.shape[0]):
             foundInts[i] = ints[i]
         return foundInts
+
+    def rayIntersections2(self, np.ndarray[float, ndim=3] _rayList):
+        '''
+        rayIntersections2(np.ndarray[float,ndim=3] _rayList
+
+        For every ray in the list provided, returns a corresponding array of
+        integers all intersection points between the tree polys and the given
+        ray.
+        '''
+        cdef int j
+        cdef vector[double] p0, p1
+        cdef cLine ray
+        cdef vector[Intersection] intersectList
+        p0.resize(3)
+        p1.resize(3)
+        intersections = []
+
+        for i in range(_rayList.shape[0]):
+            for j in range(3):
+                p0[j] = _rayList[i][0][j]
+                p1[j] = _rayList[i][1][j]
+            ray = cLine(p0,p1,0)
+            intersectList = self.thisptr.findRayIntersect(ray)
+            numInts = intersectList.size()
+            intList = []
+            for j in range(numInts):
+                intsect = Intersect()
+                intsect.SetValues(intersectList[j].triLabel,intersectList[j].p,intersectList[j].s)
+                intList.append(intsect)
+            intersections.append(intList)
+        return intersections
         
     cpdef int getNumberOfNodes(self):
         '''
