@@ -108,7 +108,7 @@ public:
     vector<double> getPositionRoot();	
     vector<Intersection> findRayIntersect(cLine &ray);    
     vector<int> findRayIntersects(vector<cLine> &rayList);
-    vector<int> findRayIntersectsSorted(vector<cLine> &rayList);		
+    vector<vector<Intersection>> findRayIntersectsSorted(vector<cLine> &rayList);
     vector<cOctNode*> getNodesFromLabel(int polyLabel);	
     vector<cOctNode*> getSortedNodesToCheck(cLine &ray);
     void insertPoly(cOctNode &node, cTri &poly);

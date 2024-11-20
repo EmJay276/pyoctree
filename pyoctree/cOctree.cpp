@@ -626,7 +626,7 @@ vector<int> cOctree::findRayIntersects(vector<cLine> &rayList)
     return foundIntsects;
 }
 
-vector<int> cOctree::findRayIntersectsSorted(vector<cLine> &rayList)
+vector<vector<Intersection>> cOctree::findRayIntersectsSorted(vector<cLine> &rayList)
 {
     // For each ray provided, determines if ray hits a poly in the tree and 
     // returns a boolean integer. 
