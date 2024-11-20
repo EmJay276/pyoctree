@@ -656,9 +656,9 @@ vector<vector<Intersection>> cOctree::findRayIntersectsSorted(vector<cLine> &ray
                 int polyLabel = node->data[j];
                 if (polyList[polyLabel].rayPlaneIntersectPoint(*ray,ip,s)) {
                     intersectList.push_back(Intersection(polyLabel,ip,s)); }
+                // If any poly from current node is hit, proceed on to the next node
+                if (intersectList.size() > 0) break;
             }
-            // If any poly from current node is hit, proceed on to the next node
-            if (intersectList.size() > 0) break;
         }
         // Sort list in terms of distance of the intersection from the ray origin
         sort(intersectList.begin(),intersectList.end());
