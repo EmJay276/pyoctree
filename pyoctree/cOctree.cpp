@@ -642,21 +642,19 @@ vector<vector<Intersection>> cOctree::findRayIntersectsSorted(vector<cLine> &ray
     {
         vector<Intersection> intersectList;
         vector<double> ip;
+        set<int>::iterator it;
         double s;
         // Get branches to check. Branches are sorted in ascending distance 
         // from ray origin
         cLine *ray = &rayList[i];
-        vector<cOctNode*> nodeList = getSortedNodesToCheck(*ray);
-        
-        // Loop through sorted branches, checking the polys contained within each
-        vector<cOctNode*>::iterator it;
-        for (it=nodeList.begin(); it!=nodeList.end(); ++it) {
-            cOctNode *node = *it;
-            for (int j=0; j<node->data.size(); j++) {
-                int polyLabel = node->data[j];
-                if (polyList[polyLabel].rayPlaneIntersectPoint(*ray,ip,s)) {
-                    intersectList.push_back(Intersection(polyLabel,ip,s)); break;}
-            }
+
+        // Get polys to check
+        set<int> polyListCheck = getListPolysToCheck(*ray);
+        // Loop through all polys in check list to find a possible intersection
+        for (it=polyListCheck.begin(); it!=polyListCheck.end(); ++it) {
+            int polyLabel = *it;
+            if (polyList[polyLabel].rayPlaneIntersectPoint(*ray,ip,s)) {
+                intersectList.push_back(Intersection(polyLabel,ip,s)); }
         }
         // Sort list in terms of distance of the intersection from the ray origin
         sort(intersectList.begin(),intersectList.end());
