@@ -62,7 +62,7 @@ cdef extern from "cOctree.h":
         vector[cTri] polyList		
         vector[cOctNode*] getNodesFromLabel(int polyLabel)
         vector[bint] findRayIntersects(vector[cLine] &rayList)
-        vector[bint] findRayIntersectsSorted(vector[cLine] &rayList)
+        vector[vector[Intersection]] findRayIntersectsSorted(vector[cLine] &rayList)
         set[int] getListPolysToCheck(cLine &ray)
         vector[cOctNode*] getSortedNodesToCheck(cLine &ray)
     
@@ -238,6 +238,8 @@ cdef class PyOctree:
         cdef int i,j
         cdef vector[double] p0, p1
         cdef vector[cLine] rayList
+        cdef vector[Intersection] intersections
+        cdef Intersection intersection
         p0.resize(3)
         p1.resize(3)
         for i in range(_rayList.shape[0]):
@@ -245,42 +247,20 @@ cdef class PyOctree:
                 p0[j] = _rayList[i][0][j]
                 p1[j] = _rayList[i][1][j]
             rayList.push_back(cLine(p0,p1,0))
-        cdef vector[bint] ints = self.thisptr.findRayIntersectsSorted(rayList)
-        cdef np.ndarray[int32,ndim=1] foundInts = np.zeros(_rayList.shape[0],dtype=np.int32)
-        for i in range(_rayList.shape[0]):
-            foundInts[i] = ints[i]
-        return foundInts
-
-    def rayIntersections2(self, np.ndarray[float, ndim=3] _rayList):
-        '''
-        rayIntersections2(np.ndarray[float,ndim=3] _rayList
-
-        For every ray in the list provided, returns a corresponding array of
-        integers all intersection points between the tree polys and the given
-        ray.
-        '''
-        cdef int j
-        cdef vector[double] p0, p1
-        cdef cLine ray
-        cdef vector[Intersection] intersectList
-        p0.resize(3)
-        p1.resize(3)
-        intersections = []
-
-        for i in range(_rayList.shape[0]):
-            for j in range(3):
-                p0[j] = _rayList[i][0][j]
-                p1[j] = _rayList[i][1][j]
-            ray = cLine(p0,p1,0)
-            intersectList = self.thisptr.findRayIntersect(ray)
-            numInts = intersectList.size()
+        cdef vector[vector[Intersection]] intersectList = self.thisptr.findRayIntersectsSorted(rayList)
+        numRays = intersectList.size()
+        intList_out = []
+        for i in range(numRays):
+            numInts = intersectList[i].size()
+            intersections = intersectList[i]
             intList = []
             for j in range(numInts):
+                intersection = intersections[j]
                 intsect = Intersect()
-                intsect.SetValues(intersectList[j].triLabel,intersectList[j].p,intersectList[j].s)
+                intsect.SetValues(intersection.triLabel,intersection.p,intersection.s)
                 intList.append(intsect)
-            intersections.append(intList)
-        return intersections
+            intList_out.append(intList)
+        return intList
         
     cpdef int getNumberOfNodes(self):
         '''
